@@ -3,7 +3,13 @@
 #include <stdio.h>
 
 // Defines
-
+#ifdef _WIN32
+#define DEBUG_BREAK() __debugbreak()
+#elif __linux__
+#define DEBUG_BREAK() __builtin_debugtrap()
+#elif __APPLE__
+#define DEBUG_BREAK() __builtin_trap()
+#endif
 
 // Logging
 
@@ -61,3 +67,13 @@ void _log(char* prefix, char* msg, TextColor textColor, Args... args){
 #define SM_TRACE(msg, ...) _log("TRACE: ", msg, TEXT_COLOR_GREEN, ##__VA_ARGS__);
 #define SM_WARN(msg, ...) _log("WARN: ", msg, TEXT_COLOR_YELLOW, ##__VA_ARGS__);
 #define SM_ERROR(msg, ...) _log("ERROR: ", msg, TEXT_COLOR_RED, ##__VA_ARGS__);
+
+#define SM_ASSERT(x, msg, ...){                                 \
+  if(!(x)){                                                     \
+    SM_ERROR(msg, ##__VA_ARGS__);                               \
+    DEBUG_BREAK();                                              \
+  }                                                             \
+}                                                               \
+
+
+

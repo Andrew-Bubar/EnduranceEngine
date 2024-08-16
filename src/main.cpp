@@ -2,7 +2,7 @@
 // Platform Globals
 static bool running = true;
 #include <iostream>
-#include "endurance.h"
+#include "endurance_lib.h"
 
 // Platform Fucntions
 bool platform_create_window(int width, int height, char* title);
@@ -91,7 +91,9 @@ int main(){
 
     SM_TRACE("test");
     SM_WARN("Test");
-    SM_ERR
+    SM_ERROR("end");
+
+    SM_ASSERT(false, "this is an assert");
 
     while(running){
         platform_update_window();
