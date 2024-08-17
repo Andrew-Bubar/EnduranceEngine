@@ -1,10 +1,17 @@
 
 #include "platform.h"
+#include "endurance_lib.h"
+
+#define APIENTRY
+#include "glcoreab.h"
 
 // Windows platform
 #ifdef _WIN32
 #include "win32_platform.cpp" //all my windows functions
 #endif
+
+//includes after handling what OS i'm on
+#include "gl_renderer.h"
 
 int main(){
 
