@@ -89,12 +89,6 @@ int main(){
 
     platform_create_window(1280, 720, "The game I WILL MAKE");
 
-    SM_TRACE("test");
-    SM_WARN("Test");
-    SM_ERROR("end");
-
-    SM_ASSERT(false, "this is an assert");
-
     while(running){
         platform_update_window();
     }
