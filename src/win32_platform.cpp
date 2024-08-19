@@ -10,9 +10,11 @@
 #define NOMINMAX
 #include <windows.h>
 #include "wglext.h"
+#include <glcoreab.h>
 
 // globals
 static HWND window;
+static HDC dc;
 
 //platform implementations
 LRESULT CALLBACK windows_window_callback(HWND window, UINT msg, 
@@ -136,7 +138,7 @@ bool platform_create_window(int width, int height, char* title){ //making the wi
         if(window == NULL){ SM_ASSERT(false, "failed to make a windows window"); return false; }
 
         //device context
-        HDC dc = GetDC(window);
+        dc = GetDC(window);
         if(!dc){ SM_ASSERT(false, "failed to get HDC"); return false; }
 
         const int pixelAttribs[] = //all of the settings for drawing to the window with openGL
@@ -211,4 +213,8 @@ void* platform_load_gl_function(char* function){
         if(!proc){ SM_ASSERT(false, "failed to load gl function: %s", "glCreateProgram"); return nullptr;}
     }
     return (void*)proc; //return the found proc
+}
+
+void platform_swap_buffers(){
+    SwapBuffers(dc);
 }

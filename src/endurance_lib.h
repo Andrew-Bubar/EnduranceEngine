@@ -6,13 +6,18 @@
 #include <sys/stat.h> //to get/edit timestamp data
 
 // Defines
-#ifdef _WIN32
+#ifdef _WIN32 //for system specific debugging
 #define DEBUG_BREAK() __debugbreak()
 #elif __linux__
 #define DEBUG_BREAK() __builtin_debugtrap()
 #elif __APPLE__
 #define DEBUG_BREAK() __builtin_trap()
 #endif
+
+#define BIT(x) 1 << (x) //helps shift data on a bite
+#define KB(x) ((unsigned long long)1024 * x) //defining what different storage sizes are to better sort memory
+#define MB(x) ((unsigned long long)1024 * KB(x))
+#define GB(x) ((unsigned long long)1024 * MB(x))
 
 // Logging
 
