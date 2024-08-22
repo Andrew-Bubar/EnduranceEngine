@@ -2,7 +2,9 @@
 
 #define STB_IMAGE_IMPLEMENTATION //to load PNG files
 #include "stb_image.h"
-#include <glcoreab.h>
+
+//#include <glcoreab.h>
+#include "render_interface.h"
 
 //OpenGL Constants
 const char* TEXTURE_PATH = "assets/textures/monochrome_tilemap_transparent.png";
@@ -11,6 +13,8 @@ const char* TEXTURE_PATH = "assets/textures/monochrome_tilemap_transparent.png";
 struct GLContext{
     GLuint programID;
     GLuint textureID;
+    GLuint transformSBOUID;
+    GLuint screenSizeID;
 };
 
 
@@ -118,6 +122,17 @@ bool gl_init(BumpAllocator* transientStorage){ //start-up openGL
         stbi_image_free(data); //freeing the data from memory
     }
 
+    { //the transform storage buffer
+        glGenBuffers(1, &glContext.transformSBOUID); // turn the SBOUID into a buffer of type 1
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, glContext.transformSBOUID); //assigning the SBOUID as a shader storage buffer
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(transform) * MAX_TRANSFORMS, 
+                        rd.transform, GL_DYNAMIC_DRAW); // assigning what data to process, what size is it, and how to do so
+    }
+
+    { //uniforms!
+        glContext.screenSizeID = glGetUniformLocation(glContext.programID, "screenSize");
+    }
+
     glEnable(GL_FRAMEBUFFER_SRGB); //set the color code
     glDisable(0x809D); //disable multisampleing 
 
@@ -138,5 +153,15 @@ void gl_render(){
 
     glViewport(0, 0, input.screenSizeX, input.screenSizeY); //telling openGL where to draw
 
-    glDrawArrays(GL_TRIANGLES, 0, 6); //draw the array from shaders
+    vector2 screenSize = {(float)input.screenSizeX, (float)input.screenSizeY};
+    glUniform2fv(glContext.screenSizeID, 1, &screenSize.x);
+
+    { //ready to draw sprites!!!
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(transform) * MAX_TRANSFORMS,
+                            rd.transform); //getting the next transform to draw
+        
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, rd.transformCount); //actually drawing them
+
+        rd.transformCount = 0; //reset the count
+    }
 }

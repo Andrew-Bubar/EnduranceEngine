@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h> //for printing text
+
 #include <stdlib.h> //for malloc
 #include <string.h> //for memset
 #include <sys/stat.h> //to get/edit timestamp data
@@ -8,6 +9,9 @@
 // Defines
 #ifdef _WIN32 //for system specific debugging
 #define DEBUG_BREAK() __debugbreak()
+#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:4996)
 #elif __linux__
 #define DEBUG_BREAK() __builtin_debugtrap()
 #elif __APPLE__
@@ -235,3 +239,13 @@ bool copy_file(char* fileName, char* outputName, BumpAllocator* ba){
 
   return false; // else return false
 }
+
+// heckin nerd math stuff
+struct vector2 {
+  float x;
+  float y;
+};
+struct ivector2 {
+  int x;
+  int y;
+};
