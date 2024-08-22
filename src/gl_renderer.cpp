@@ -1,8 +1,16 @@
 #include "gl_renderer.h"
 
+#define STB_IMAGE_IMPLEMENTATION //to load PNG files
+#include "stb_image.h"
+#include <glcoreab.h>
+
+//OpenGL Constants
+const char* TEXTURE_PATH = "assets/textures/monochrome_tilemap_transparent.png";
+
 // OpenGL Structs
 struct GLContext{
     GLuint programID;
+    GLuint textureID;
 };
 
 
@@ -86,6 +94,32 @@ bool gl_init(BumpAllocator* transientStorage){ //start-up openGL
     GLuint VAO; //giving openGL vertext Arrays cause it needs them to run :(
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
+
+    {//loading the tile sheet
+        int width, height, channels;
+        char* data = (char*)stbi_load(TEXTURE_PATH, &width, &height, &channels, 4); //loading the tilesheet
+
+        if(!data){SM_ASSERT(0, "Failed to load tiles"); return false; }
+
+        glGenTextures(1, &glContext.textureID); //genertaing texture
+        glActiveTexture(GL_TEXTURE0); //activating texture at 0
+        glBindTexture(GL_TEXTURE_2D, glContext.textureID); //assigning the texture 2D
+
+        // adding more settings to the texture
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, 
+                        GL_UNSIGNED_BYTE, data); //making the openGL texture
+
+        stbi_image_free(data); //freeing the data from memory
+    }
+
+    glEnable(GL_FRAMEBUFFER_SRGB); //set the color code
+    glDisable(0x809D); //disable multisampleing 
 
     glEnable(GL_DEPTH_TEST); //Depth texting stuff
     glDepthFunc(GL_GREATER);
